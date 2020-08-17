@@ -1,0 +1,16 @@
+promethuse报警配置
+=====================
+- alert: "VIVO消耗白天"
+    expr: (bigcustomer_channel_consume{instance="10.134.35.66:30000", channel="bigcustomer_channel_vivo"} - bigcustomer_channel_consume{instance="10.134.35.66:30000", channel="bigcustomer_channel_vivo"} offset 7d) / (bigcustomer_channel_consume{instance="10.134.35.66:30000", channel="bigcustomer_channel_vivo"} offset 7d * 100) < -20
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      effective_time: 8-23
+      repeat_interval: 300
+      send_resolved: true
+      send_value: true
+      users: lizhansheng
+      value: "{{ $value }}"
+      description: "VIVO消耗白天下降20%"
+      summary: "VIVO消耗白天下降"

@@ -1,0 +1,217 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Date    : 2019-07-09 18:03:08
+# @Author  : lizhansheng (lizhansheng@sogou-inc.com)
+
+
+import logging
+from monitor_consume_conf import *
+
+logging.basicConfig(
+    format="[%(asctime)s] [file:%(filename)s] [line:%(lineno)s] [col:%(levelno)s], [%(message)s]"
+)
+logging.getLogger().setLevel(logging.INFO)
+
+
+
+class MonitorWSConsume(object):
+
+	'''==============================================================='''
+	'''========================== 按渠道统计 ==========================='''
+	'''==============================================================='''
+	@classmethod
+	def ws_channel_waigou(cls, data):
+		waigou_consume = 0
+		try:
+			for line in data:
+				if line[9] == "WaiGou":
+					waigou_consume += int(line[0])
+		except IndexError as err:
+			logging.error(err)
+			waigou_consume = 0
+		ws_channel_consume.labels('ws_channel_waigou', '0.0.0.0').set(waigou_consume/100)
+
+
+	@classmethod
+	def ws_channel_qq(cls, data):
+
+		qq_consume = 0
+		try:
+			for line in data:
+				if line[9] == "QQ":
+					qq_consume += int(line[0])
+		except IndexError as err:
+			logging.error(err)
+			waigou_consume = 0
+		ws_channel_consume.labels('ws_channel_qq', '0.0.0.0').set(qq_consume/100)
+
+
+
+	@classmethod
+	def ws_channel_sogou(cls, data):
+		sogou_consume = 0
+		try:
+			for line in data:
+				if line[9] == "ZiYou":
+					sogou_consume += int(line[0])
+		except IndexError as err:
+			logging.error(err)
+			waigou_consume = 0
+		ws_channel_consume.labels('ws_channel_sogou', '0.0.0.0').set(sogou_consume/100)
+
+
+
+	'''==============================================================='''
+	'''=========================== 按行业统计 =========================='''
+	'''==============================================================='''
+	@classmethod
+	def ws_industry_merchants(cls, data):
+		merchants_consume = 0
+		for line in data:
+			try:
+				if line[6].startswith('203'):
+					merchants_consume += int(line[0])
+			except IndexError as err:
+				logging.error(err)
+				merchants_consume = 0
+		ws_industry_consume.labels('ws_industry_merchants', '0.0.0.0').set(merchants_consume/100)
+
+
+	@classmethod
+	def ws_industry_it(cls, data):
+		it_consume = 0
+		for line in data:
+			try:
+				if line[6].startswith('204'):
+					it_consume += int(line[0])
+			except IndexError as err:
+				logging.error(err)
+				it_consume = 0
+		ws_industry_consume.labels('ws_industry_it', '0.0.0.0').set(it_consume/100)
+
+
+	@classmethod
+	def ws_industry_medical(cls, data):
+		medical_consume = 0
+		for line in data:
+			try:
+				if line[6].startswith('208'):
+					medical_consume += int(line[0])
+			except IndexError as err:
+				logging.error(err)
+				medical_consume = 0
+		ws_industry_consume.labels('ws_industry_medical', '0.0.0.0').set(medical_consume/100)
+
+
+	@classmethod
+	def ws_industry_ecommerce(cls, data):
+		ecommerce_consume = 0
+		for line in data:
+			try:
+				if line[6].startswith('216'):
+					ecommerce_consume += int(line[0])
+			except IndexError as err:
+				logging.error(err)
+				ecommerce_consume = 0
+		ws_industry_consume.labels('ws_industry_ecommerce', '0.0.0.0').set(ecommerce_consume/100)
+
+
+
+
+	'''==============================================================='''
+	'''======================== 按机器和机房统计 ========================'''
+	'''==============================================================='''
+	@classmethod
+	def ws_server_bj_sk(cls, data):
+		
+		server_list = ['10.139.36.101',
+					   '10.134.105.24']
+
+		for ip in server_list:
+			bj_sk_consume = 0
+			for line in data:
+
+				try:
+					if line[3] == ip and line[8] == 'WSSearch':
+						#logging.info("{}-->{}".format(ip, line[3]))
+						#logging.info("{}: {}".format('ws_bj', line[3]))
+						bj_sk_consume += int(line[0])
+				except IndexError as err:
+					logging.error(err)
+					bj_sk_consume = 0
+			ws_server_consume.labels('ws_server_bj_sk', ip).set(bj_sk_consume/100)
+
+
+
+
+
+	@classmethod
+	def ws_server_bj(cls, data):
+
+		server_list = ['10.139.20.71',
+					   '10.134.73.35',
+					   '10.139.35.58',
+					   '10.134.89.67',
+					   '10.139.20.52',
+					   '10.134.104.119']
+
+		
+		for ip in server_list:
+			bj_consume = 0
+			for line in data:
+
+				try:
+					if line[3] == ip and line[8] == 'WSSearch':
+						#logging.info("{}-->{}".format(ip, line[3]))
+						#logging.info("{}: {}".format('ws_bj', line[3]))
+						bj_consume += int(line[0])
+				except IndexError as err:
+					logging.error(err)
+					bj_consume = 0
+			ws_server_consume.labels('ws_server_bj', ip).set(bj_consume/100)
+
+
+	@classmethod
+	def ws_server_gd(cls, data):
+		
+		server_list = ['10.135.66.41',
+					   '10.135.66.32',
+					   '10.135.73.90',
+					   '10.135.73.41']
+
+		for ip in server_list:
+
+			gd_consume = 0
+			for line in data:
+				
+				try:
+					if line[3] == ip and line[8] == 'WSSearch':
+						#logging.info("{}-->{}".format(ip, line[3]))
+						gd_consume += int(line[0])
+				except IndexError as err:
+					logging.error(err)
+					gd_consume = 0
+			ws_server_consume.labels('ws_server_gd', ip).set(gd_consume/100)
+
+
+	@classmethod
+	def ws_server_js(cls, data):
+		
+		server_list = ['10.140.26.81',
+					   '10.140.26.80',
+					   '10.140.11.23']
+		
+		for ip in server_list:
+			js_consume = 0
+			for line in data:
+
+				try:
+					if line[3] == ip and line[8] == 'WSSearch':
+						#logging.info("{}-->{}".format(ip, line[3]))
+						js_consume += int(line[0])
+				except IndexError as err:
+					logging.error(err)
+					js_consume = 0
+			ws_server_consume.labels('ws_server_js', ip).set(js_consume/100)
+
+

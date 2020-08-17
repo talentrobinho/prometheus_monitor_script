@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Date    : 2019-07-09 18:03:08
+# @Author  : lizhansheng (lizhansheng@sogou-inc.com)
+
+from monitor_consume_conf import *
+import logging
+
+
+logging.basicConfig(
+    format="[%(asctime)s] [file:%(filename)s] [line:%(lineno)s] [col:%(levelno)s], [%(message)s]"
+)
+logging.getLogger().setLevel(logging.INFO)
+
+'''
+lingxi	sogou-apps-86b94dae7c6517ec
+lingxi	sogou-apps-9113c52c5f26af17
+input	sogou-apps-c64e7fcb17df2cd4
+kuang	sogou-appi-3dea6b598a16b334
+kuang	sogou-appi-de07edeeba9f475c
+kuang	sogou-appi-f84c76bab4c292f0
+kuang	sogou-appi-9f667326187d83f1
+kuang	sogou-appi-61b3faf77e874a96
+kuang	sogou-appi-b9ea004175174b1d
+kuang	sogou-appi-c851a9fd59eb3a91
+'''
+
+class MonitorZhiDaConsume(object):
+
+
+	lingxi_pid = ['sogou-apps-86b94dae7c6517ec',
+				  'sogou-apps-9113c52c5f26af17']
+	input_pid  = ['sogou-apps-c64e7fcb17df2cd4']
+	kuang_pid  = ['sogou-appi-3dea6b598a16b334',
+			 	  'sogou-appi-de07edeeba9f475c',
+			 	  'sogou-appi-f84c76bab4c292f0',
+			 	  'sogou-appi-9f667326187d83f1',
+			 	  'sogou-appi-61b3faf77e874a96',
+			 	  'sogou-appi-b9ea004175174b1d',
+			 	  'sogou-appi-c851a9fd59eb3a91']
+
+
+	@classmethod
+	def zhida_channel_consume_filter(cls, line, pid_list):
+		zhida_consume = 0
+		try:
+			if line[1] in pid_list:
+				zhida_consume += int(line[0])
+		except IndexError as err:
+			logging.error(err)
+			zhida_consume = 0
+		return zhida_consume
+
+
+	@classmethod
+	def zhida_channel(cls, data):
+		lingxi_consume = 0
+		input_consume = 0
+		kuang_consume = 0
+
+		for line in data:
+			lingxi_consume += cls.zhida_channel_consume_filter(line, cls.lingxi_pid)
+			input_consume += cls.zhida_channel_consume_filter(line, cls.input_pid)
+			kuang_consume += cls.zhida_channel_consume_filter(line, cls.kuang_pid)
+
+		zhida_channel_consume.labels('zhida_channel_lingxi', '0.0.0.0').set(lingxi_consume/100.0)
+		zhida_channel_consume.labels('zhida_channel_input', '0.0.0.0').set(input_consume/100.0)
+		zhida_channel_consume.labels('zhida_channel_kuang', '0.0.0.0').set(kuang_consume/100.0)
